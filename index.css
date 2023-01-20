@@ -1,9 +1,15 @@
 body {
   margin: 0;
+  font-family: 'Roboto', sans-serif;
+}
+
+p {
+  padding: 0;
+  margin: 0;
 }
 
 .form-container {
-  margin: 36px;
+  margin: 36px 36px 52px 36px;
   display: flex;
   justify-content: center;
 }
@@ -17,4 +23,54 @@ body {
   padding: 8px;
   font-size: 24px;
   margin-left: 6px;
+}
+
+#current-weather-container {
+  display: flex;
+  justify-content: center;
+  gap: 5%;
+  padding-right: 5%;
+}
+
+.weather-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.temperature-section {
+  font-size: 48px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+.other-data-section {
+  font-size: 14px;
+  color: grey;
+}
+
+.other-data-section p {
+  margin-bottom: 4px;
+}
+
+.unit {
+  font-size: 32px;
+}
+
+.location-card {
+  color: grey;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.location-card p {
+  margin-bottom: 4px;
+}
+
+.location {
+  font-size: 24px;
+  color: black;
 }
