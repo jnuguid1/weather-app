@@ -1,0 +1,20 @@
+body {
+  margin: 0;
+}
+
+.form-container {
+  margin: 36px;
+  display: flex;
+  justify-content: center;
+}
+
+#location-form input {
+  padding: 8px;
+  font-size: 24px;
+}
+
+#location-form button {
+  padding: 8px;
+  font-size: 24px;
+  margin-left: 6px;
+}
