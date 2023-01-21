@@ -2,6 +2,7 @@
 const isCelsius = true;
 const celsiusSymbol = '℃'
 const fahrenheitSymbol = '\u{2109}';
+let unit = isCelsius ? celsiusSymbol : fahrenheitSymbol;
 
 // dom elements
 const locationInput = document.getElementById('location-input');
@@ -16,6 +17,7 @@ const currentTemperatureSection =
   document.querySelector('#current-weather-container .temperature-section');
 const miscSection = 
   document.querySelector('#current-weather-container .other-data-section');
+const dailyWeatherContainer = document.getElementById('daily-weather-container');
 
 // ============== weather data fetch and process functions =================
 
@@ -48,6 +50,14 @@ function processWeatherData(data) {
   }
 };
 
+function processWeatherDayData(data) {
+  return {
+    time: data.dt,
+    temp: data.temp.day,
+    icon_id: data.weather[0].icon
+  }
+}
+
 function getCountry(data) {
   return data.country;
 }
@@ -57,7 +67,7 @@ function getCurrentWeather(data) {
 };
 
 function getDailyWeather(data) {
-  return data.weatherData.daily;
+  return data.weatherData.daily.map(dayData => processWeatherDayData(dayData));
 };
 
 function getHourlyWeather(data) {
@@ -79,6 +89,7 @@ async function onLocationSubmit() {
     processWeatherData(currentWeather), 
     location
   );
+  populateDailyWeatherSection(dailyWeather);
 }
 
 locationForm.addEventListener('submit', (event) => {
@@ -96,13 +107,10 @@ function populateLocationCard(data, location) {
 };
 
 function populateWeatherCard(data) {
-  const unit = isCelsius ? celsiusSymbol : fahrenheitSymbol;
-
   addImg(
     iconSection,
     `http://openweathermap.org/img/wn/${data.icon_id}@2x.png`
-  )
-
+  );
   addParagraph(
     currentTemperatureSection,
     `${Math.round(data.temp)}${unit}`
@@ -120,11 +128,25 @@ function populateWeatherCard(data) {
   );
 };
 
+function populateDailyCard(data) {
+  const dailyCard = addDiv(dailyWeatherContainer, null, 'daily-card');
+  addParagraph(dailyCard, formatDay(data.time));
+  addImg(
+    dailyCard, 
+    `http://openweathermap.org/img/wn/${data.icon_id}@2x.png`
+  );
+  addParagraph(dailyCard, `${Math.round(data.temp)}${unit}`);
+}
+
 function populateCurrentWeatherSection(data, location) {
   resetCurrentWeatherSection();
   populateWeatherCard(data);
   populateLocationCard(data, location);
 };
+
+function populateDailyWeatherSection(dailyArray) {
+  dailyArray.forEach(weatherData => populateDailyCard(weatherData));
+}
 
 function resetCurrentWeatherSection() {
   locationInput.value = '';
@@ -132,7 +154,7 @@ function resetCurrentWeatherSection() {
   removeChildren(currentTemperatureSection);
   removeChildren(miscSection);
   removeChildren(locationCard);
-}
+};
 
 // ========================= helpers ===================================
 
@@ -140,6 +162,18 @@ function removeChildren(element) {
   while(element.firstChild) {
     element.removeChild(element.lastChild);
   }
+};
+
+function addDiv(container, id, classes) {
+  const div = document.createElement('div');
+  if (id) {
+    div.id = id;
+  }
+  if (classes) {
+    div.className = classes;
+  }
+  container.appendChild(div);
+  return div;
 }
 
 function addParagraph(container, text, classes) {
@@ -172,6 +206,11 @@ function formatDate(date) {
   const dateArray = Date(date).split(" ");
   return `${dateArray[0]} ${dateArray[1]} ${dateArray[2]} ${formatTime(dateArray[4])}`
 };
+
+function formatDay(date) {
+  const dateArray = Date(date).split(" ");
+  return `${dateArray[0]}`;
+}
 
 function toUppercaseWords(str) {
   const strArray = str.split(" ");

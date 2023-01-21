@@ -26,6 +26,7 @@ p {
 }
 
 #current-weather-container {
+  margin-bottom: 48px;
   display: flex;
   justify-content: center;
   gap: 5%;
@@ -73,4 +74,27 @@ p {
 .location {
   font-size: 24px;
   color: black;
+}
+
+#daily-weather-container {
+  display: flex;
+  justify-content: center;
+}
+
+.daily-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.daily-card img {
+  width: 70%;
+}
+
+.daily-card p:first-child {
+  font-size: 18px;
+}
+
+.daily-card p:last-child {
+  font-size: 14px;
 }
