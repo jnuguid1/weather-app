@@ -12,6 +12,14 @@ p {
   margin: 36px 36px 52px 36px;
   display: flex;
   justify-content: center;
+  align-items: center;
+}
+
+#units-button {
+  font-size: 32px;
+  margin-right: 16px;
+  cursor: pointer;
+  user-select: none;
 }
 
 #location-form input {

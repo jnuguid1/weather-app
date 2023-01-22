@@ -1,10 +1,11 @@
 // global fields/constants
-const isCelsius = true;
-const celsiusSymbol = '℃'
-const fahrenheitSymbol = '\u{2109}';
-let unit = isCelsius ? celsiusSymbol : fahrenheitSymbol;
+let isCelsius = true;
+const celsiusSymbol = '℃';
+const fahrenheitSymbol = '℉';
+let unit = celsiusSymbol;
 
 // dom elements
+const unitsButton = document.getElementById('units-button');
 const locationInput = document.getElementById('location-input');
 const locationForm = document.getElementById('location-form');
 const locationCard =
@@ -77,25 +78,59 @@ function getHourlyWeather(data) {
 // ========================= event listeners ===============================
 
 async function onLocationSubmit() {
-  const locationValue = locationInput.value;
-  const weatherData = await fetchWeather(locationValue);
-  const country = getCountry(weatherData);
-  const location = `${locationValue}, ${country}`
-  const currentWeather = getCurrentWeather(weatherData);
-  const dailyWeather = getDailyWeather(weatherData);
-  const hourlyWeather = getHourlyWeather(weatherData);
-  
-  populateCurrentWeatherSection(
-    processWeatherData(currentWeather), 
-    location
-  );
-  populateDailyWeatherSection(dailyWeather);
+  try {
+    const locationValue = locationInput.value;
+    const weatherData = await fetchWeather(locationValue);
+    const country = getCountry(weatherData);
+    const location = `${locationValue}, ${country}`
+    const currentWeather = getCurrentWeather(weatherData);
+    const dailyWeather = getDailyWeather(weatherData);
+    
+    populateCurrentWeatherSection(
+      processWeatherData(currentWeather), 
+      location
+    );
+    populateDailyWeatherSection(dailyWeather);
+  } catch (error) {
+    alert('Could not find this location');
+  }
+};
+
+function onUnitsChanged() {
+  if (unitsButton.textContent === '℉') {
+    unitsButton.textContent = '℃';
+    unit = '℉';
+  } else {
+    unitsButton.textContent = '℉';
+    unit = '℃';
+  }
+  isCelsius = !isCelsius;
+  if (currentTemperatureSection.children.length !== 0) {
+    const currentTemp = document.querySelector('.temperature-section p');
+    const currentFeelsLike = document.querySelector('.other-data-section p:first-of-type');
+    const dailyWeatherText = document.querySelectorAll('.daily-card p:last-child');
+    if (isCelsius) {
+      currentTemp.textContent = `${toCelsius(parseInt(currentTemp.textContent))}℃`;
+      currentFeelsLike.textContent = `Feels like: ${toCelsius(parseInt(parseFeelsLike(currentFeelsLike.textContent)))}℃`;
+      for (let i = 0; i < dailyWeatherText.length; i++) {
+        dailyWeatherText[i].textContent = `${toCelsius(parseInt(dailyWeatherText[i].textContent))}℃`;
+      }
+    } else {
+      currentTemp.textContent = `${toFahrenheit(parseInt(currentTemp.textContent))}℉`;
+      currentFeelsLike.textContent = `Feels like: ${toFahrenheit(parseInt(parseFeelsLike(currentFeelsLike.textContent)))}℉`;
+      for (let i = 0; i < dailyWeatherText.length; i++) {
+        dailyWeatherText[i].textContent = `${toFahrenheit(parseInt(dailyWeatherText[i].textContent))}℉`;
+      }
+    }
+  } 
 }
 
 locationForm.addEventListener('submit', (event) => {
   event.preventDefault();
   onLocationSubmit();
 });
+
+unitsButton.addEventListener('click', onUnitsChanged);
 
 // ========================= dom modifier functions ========================
 
@@ -140,6 +175,7 @@ function populateDailyCard(data) {
 
 function populateCurrentWeatherSection(data, location) {
   resetCurrentWeatherSection();
+  resetDailyWeatherSection();
   populateWeatherCard(data);
   populateLocationCard(data, location);
 };
@@ -155,6 +191,10 @@ function resetCurrentWeatherSection() {
   removeChildren(miscSection);
   removeChildren(locationCard);
 };
+
+function resetDailyWeatherSection() {
+  removeChildren(dailyWeatherContainer);
+}
 
 // ========================= helpers ===================================
 
@@ -203,12 +243,12 @@ function formatTime(time) {
 };
 
 function formatDate(date) {
-  const dateArray = Date(date).split(" ");
+  const dateArray = new Date(date*1000).toString().split(" ");
   return `${dateArray[0]} ${dateArray[1]} ${dateArray[2]} ${formatTime(dateArray[4])}`
 };
 
 function formatDay(date) {
-  const dateArray = Date(date).split(" ");
+  const dateArray = new Date(date*1000).toString().split(" ");
   return `${dateArray[0]}`;
 }
 
@@ -219,4 +259,16 @@ function toUppercaseWords(str) {
     newStr += s.charAt(0).toUpperCase() + s.slice(1) + " ";
   });
   return newStr.slice(0, newStr.length-1);
+}
+
+function toCelsius(temp) {
+  return Math.round((temp - 32) * (5/9));
+};
+
+function toFahrenheit(temp) {
+  return Math.round((temp * (9/5)) + 32);
+}
+
+function parseFeelsLike(str) {
+  return str.split(' ')[2];
 }
